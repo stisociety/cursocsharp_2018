@@ -18,7 +18,7 @@ namespace ExemploTesteUnitario
 
         public decimal GerarMensalidade()
         {
-            if (Turno.Equals(TurnoDefinacao.Manha)) return ValorMensal * 0.10M;
+            if (Turno.Equals(TurnoDefinacao.Manha)) return ValorMensal - (ValorMensal * 0.10M) ;
             if (Turno.Equals(TurnoDefinacao.Tarde)) return ValorMensal * 0.30M;
             return ValorMensal;
         }
