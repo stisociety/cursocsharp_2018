@@ -1,36 +1,36 @@
 ﻿using Dapper;
 using Microsoft.AspNetCore.Mvc;
-using STI.Society.Tenancy.WebApi.Model;
+using MiniSociety.WebApi.Model;
 using System.Data.SqlClient;
 
 namespace MiniSociety.WebApi.Controllers
 {
     [Route("api/[controller]")]
-    public class TurmasController : Controller
+    public class AlunosController : Controller
     {
-        public TurmasController()
+        public AlunosController()
         {
            
         }
 
         [HttpGet]
-        public IActionResult Consultar([FromQuery]bool disponivel)
+        public IActionResult Consultar()
         {
-            var sql = "SELECT Id, Descricao, IdModalidade, Disponivel FROM Turmas WHERE Disponivel = @disponivelSqlParam";
+            var sql = "SELECT Id, Nome FROM Alunos";
             using (var conexao = new SqlConnection(@"Data Source = DRACO-VM\SQLEXPRESS2012_2; Initial Catalog = TesteAulaGabi; User ID = sa; Password = STI000;"))
             {
-                var resultado = conexao.Query<dynamic>(sql, new { disponivelSqlParam = disponivel });
+                var resultado = conexao.Query<dynamic>(sql);
                 return Ok(resultado);
             }
         }
 
         [HttpPost]
-        public IActionResult Inserir([FromBody] Turma turma)
+        public IActionResult Inserir([FromBody] Aluno aluno)
         {
-            var sql = "INSERT INTO Turmas (Descricao, IdModalidade, Disponivel) VALUES (@Descricao, @IdModalidade, @Disponivel)";
+            var sql = "INSERT INTO Alunos (Nome) VALUES (@Nome)";
             using (var conexao = new SqlConnection(@"Data Source = DRACO-VM\SQLEXPRESS2012_2; Initial Catalog = TesteAulaGabi; User ID = sa; Password = STI000;"))
             {
-                var resultado = conexao.Execute(sql, new { turma.Descricao, turma.IdModalidade, turma.Disponivel });
+                var resultado = conexao.Execute(sql, new { aluno.Nome});
                 return Ok(resultado);
             }
         }

@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.27703.2035
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MiniSociety.WebApi", "STI.Society.Tenancy.WebApi\MiniSociety.WebApi.csproj", "{F343E9F2-7258-4C7A-80F5-54C7D384440A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MiniSociety.WebApi", "MiniSociety.WebApi\MiniSociety.WebApi.csproj", "{5B470D88-F418-4D09-A9B9-7525DD411D7F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -11,10 +11,10 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{F343E9F2-7258-4C7A-80F5-54C7D384440A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{F343E9F2-7258-4C7A-80F5-54C7D384440A}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{F343E9F2-7258-4C7A-80F5-54C7D384440A}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{F343E9F2-7258-4C7A-80F5-54C7D384440A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5B470D88-F418-4D09-A9B9-7525DD411D7F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5B470D88-F418-4D09-A9B9-7525DD411D7F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5B470D88-F418-4D09-A9B9-7525DD411D7F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5B470D88-F418-4D09-A9B9-7525DD411D7F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
