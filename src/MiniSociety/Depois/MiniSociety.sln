@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.27703.2035
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MiniSociety.WebApi", "MiniSociety.WebApi\MiniSociety.WebApi.csproj", "{5B470D88-F418-4D09-A9B9-7525DD411D7F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MiniSociety.Dominio", "MiniSociety.Dominio\MiniSociety.Dominio.csproj", "{F819E6C4-1647-4028-9952-36DA9851CAA4}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{5B470D88-F418-4D09-A9B9-7525DD411D7F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5B470D88-F418-4D09-A9B9-7525DD411D7F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5B470D88-F418-4D09-A9B9-7525DD411D7F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5B470D88-F418-4D09-A9B9-7525DD411D7F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F819E6C4-1647-4028-9952-36DA9851CAA4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F819E6C4-1647-4028-9952-36DA9851CAA4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F819E6C4-1647-4028-9952-36DA9851CAA4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F819E6C4-1647-4028-9952-36DA9851CAA4}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {99639499-6CE3-4D6C-B674-24F5C368A957}
+	EndGlobalSection
+EndGlobal
