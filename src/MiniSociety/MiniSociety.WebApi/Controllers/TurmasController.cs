@@ -1,39 +1,45 @@
-﻿using Dapper;
-using Microsoft.AspNetCore.Mvc;
-using MiniSociety.WebApi.Model;
-using System.Data.SqlClient;
+﻿using Microsoft.AspNetCore.Mvc;
+using MiniSociety.Dominio.Entitidades;
+using MiniSociety.Dominio.Repositorios;
 
 namespace MiniSociety.WebApi.Controllers
 {
     [Route("api/[controller]")]
     public class TurmasController : Controller
     {
-        public TurmasController()
+        private readonly TurmasRepositorio _turmasRepositorio;
+
+        public TurmasController(TurmasRepositorio turmasRepositorio)
         {
-           
+            _turmasRepositorio = turmasRepositorio;
         }
 
         [HttpGet]
-        public IActionResult Consultar([FromQuery]bool disponivel)
-        {
-            var sql = "SELECT Id, Descricao, IdModalidade, Disponivel FROM Turmas WHERE Disponivel = @disponivelSqlParam";
-            using (var conexao = new SqlConnection(@"Data Source = DRACO-VM\SQLEXPRESS2012_2; Initial Catalog = TesteAulaGabi; User ID = sa; Password = STI000;"))
-            {
-                var resultado = conexao.Query<dynamic>(sql, new { disponivelSqlParam = disponivel });
-                return Ok(resultado);
-            }
-        }
+        public IActionResult Consultar()
+            => Ok(_turmasRepositorio.Recuperar());
+
+        [HttpGet("{id}")]
+        public IActionResult ConsultarPorId(int id)
+            => Ok(_turmasRepositorio.Recuperar(id));
 
         [HttpPost]
-        public IActionResult Inserir([FromBody] Turma turma)
+        public IActionResult Inserir([FromBody]Turma turma)
         {
-            var sql = "INSERT INTO Turmas (Descricao, IdModalidade, Disponivel) VALUES (@Descricao, @IdModalidade, @Disponivel)";
-            using (var conexao = new SqlConnection(@"Data Source = DRACO-VM\SQLEXPRESS2012_2; Initial Catalog = TesteAulaGabi; User ID = sa; Password = STI000;"))
+            try
             {
-                var resultado = conexao.Execute(sql, new { turma.Descricao, turma.IdModalidade, turma.Disponivel });
-                return Ok(resultado);
+                if (!ModelState.IsValid)
+                    return BadRequest(ModelState);
+
+                turma.Id = 0;
+                turma.Status = TurmaStatus.Fechada;
+                var turmaInserida = _turmasRepositorio.Inserir(turma);
+
+                return CreatedAtAction(nameof(ConsultarPorId), new { id = turma.Id }, turmaInserida);
+            }
+            catch (System.Exception e)
+            {
+                return StatusCode(500, new { error = e.Message });
             }
         }
-
     }
 }

@@ -26,4 +26,8 @@
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="2.1.1" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\MiniSociety.Dominio\MiniSociety.Dominio.csproj" />
+  </ItemGroup>
+
 </Project>

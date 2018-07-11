@@ -2,6 +2,9 @@
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using MiniSociety.Dominio.Crosscutting;
+using MiniSociety.Dominio.Repositorios;
+using MiniSociety.Dominio.Servicos;
 
 namespace MiniSociety.WebApi
 {
@@ -14,13 +17,17 @@ namespace MiniSociety.WebApi
 
         public IConfiguration Configuration { get; }
 
-        // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddSingleton(new AppSettingsHelper(Configuration));
+            services.AddTransient<AlunosRepositorio>();
+            services.AddTransient<TurmasRepositorio>();
+            services.AddTransient<InscricaoRepositorio>();
+            services.AddTransient<InscricaoServico>();
+
             services.AddMvc();
         }
 
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
             if (env.IsDevelopment())
