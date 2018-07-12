@@ -26,7 +26,7 @@ namespace MiniSociety.Dominio.Repositorios
                             .Select(a => new Aluno
                             {
                                 Id = a.Id,
-                                Nome = a.Nome,
+                                Nome = Nome.Criar(a.Nome),
                                 Email = a.Email,
                                 Status = (AlunoStatus)((int)a.Status),
                                 DataNascimento = a.DataNascimento,
@@ -76,7 +76,7 @@ namespace MiniSociety.Dominio.Repositorios
                                 return new Aluno
                                 {
                                     Id = a.Id,
-                                    Nome = a.Nome,
+                                    Nome = Nome.Criar(a.Nome),
                                     Email = a.Email,
                                     Status = (AlunoStatus)((int)a.Status),
                                     DataNascimento = a.DataNascimento,
@@ -98,7 +98,7 @@ namespace MiniSociety.Dominio.Repositorios
                             .Select(a => new Aluno
                             {
                                 Id = a.Id,
-                                Nome = a.Nome,
+                                Nome = Nome.Criar(a.Nome),
                                 Email = a.Email,
                                 Status = (AlunoStatus)((int)a.Status),
                                 DataNascimento = a.DataNascimento,
@@ -114,7 +114,7 @@ namespace MiniSociety.Dominio.Repositorios
             var sql = "INSERT INTO Alunos (Nome, Email, DataNascimento, Status, SuspensoAte) VALUES (@Nome, @Email, @DataNascimento, @Status, @SuspensoAte); SELECT CAST(SCOPE_IDENTITY() as int); ";
             using (var conexao = new SqlConnection(_appSettings.GetConnectionString()))
             {
-                var resultado = conexao.Query<int>(sql, new { aluno.Nome, aluno.Email, aluno.DataNascimento, aluno.Status, aluno.SuspensoAte }).First();
+                var resultado = conexao.Query<int>(sql, new { Nome = aluno.Nome.Valor, aluno.Email, aluno.DataNascimento, aluno.Status, aluno.SuspensoAte }).First();
                 return Recuperar(resultado);
             }
         }

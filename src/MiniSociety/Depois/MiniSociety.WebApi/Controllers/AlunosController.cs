@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using MiniSociety.Dominio.Dtos;
 using MiniSociety.Dominio.Entitidades;
 using MiniSociety.Dominio.Repositorios;
 using MiniSociety.Dominio.Servicos;
@@ -35,21 +36,21 @@ namespace MiniSociety.WebApi.Controllers
             => Ok(_alunosRepositorio.Recuperar(id));
 
         [HttpPost]
-        public IActionResult Inserir([FromBody]Aluno aluno)
+        public IActionResult Inserir([FromBody]CriarAlunoDto model)
         {
             try
             {
-                if (!ModelState.IsValid)
-                    return BadRequest(ModelState);
-                
-                if (_alunosRepositorio.RecuperarPorEmail(aluno.Email) != null)                
-                    return BadRequest("Email já está em uso: " + aluno.Email);
+                if (_alunosRepositorio.RecuperarPorEmail(model.Email) != null)
+                    return BadRequest("Email já está em uso: " + model.Email);
 
-                aluno.Id = 0;
-                aluno.Status = AlunoStatus.Ativo;
+                var nome = Nome.Criar(model.Nome);
+                if (nome.EhFalha)
+                    return StatusCode(nome.Falha.Codigo, nome.Falha.Mensagem);
+
+                var aluno = new Aluno(nome.Sucesso, model.Email, model.DataNascimento);
                 var alunoInserido = _alunosRepositorio.Inserir(aluno);
 
-                return CreatedAtAction(nameof(ConsultarPorId), new { id = aluno.Id }, alunoInserido);
+                return CreatedAtAction(nameof(ConsultarPorId), new { id = alunoInserido.Id }, alunoInserido);
             }
             catch (System.Exception e)
             {
@@ -68,10 +69,11 @@ namespace MiniSociety.WebApi.Controllers
                 var aluno = _alunosRepositorio.Recuperar(id);
                 if (aluno == null)
                     return BadRequest("Aluno inválido");
-                if (aluno.Inscricoes.Any(i => i.Turma.Equals(turma.Id)))
+                if (aluno.Inscricoes.Any(i => i.Turma.Id == turma.Id))
                     return BadRequest("Aluno já inscrito para esta turma");
 
                 var inscricao = _servicoInscricao.RealizarInscricao(aluno, turma);
+
                 var inscricaoInserida = _inscricaoRepositorio.Inserir(inscricao);
                 return CreatedAtAction(nameof(ConsultarPorId), new { id }, aluno);
             }
