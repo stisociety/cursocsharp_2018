@@ -16,8 +16,10 @@ namespace MiniSociety.Dominio.Entitidades
             ValorMensal = valorMensal;
             Status = status;
             EmFeriasAte = emFeriasAte;
+            Id = 0;
         }
 
+        public int Id { get; private set; }
         public string Matricula { get; }
         public int AlunoId { get; }
         public Turma Turma { get; }
@@ -25,5 +27,10 @@ namespace MiniSociety.Dominio.Entitidades
         public decimal ValorMensal { get; }
         public InscricaoStatus Status { get; }
         public DateTime? EmFeriasAte { get; }
+
+        internal void AtualizarId(int id)
+        {
+            Id = id;
+        }
     }
 }

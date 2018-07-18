@@ -23,14 +23,7 @@ namespace MiniSociety.Dominio.Repositorios
             {
                 return conexao
                             .Query<dynamic>(sql)
-                            .Select(a => new Turma
-                            {
-                                Id = a.Id,
-                                Descricao = a.Descricao,                                
-                                Status = (TurmaStatus)((int)a.Status),
-                                Modalidade = (TurmaModalidade)((int)a.Status),
-                                ValorMensal = a.ValorMensal
-                            })
+                            .Select(a => new Turma(a.Id, a.Descricao, (TurmaModalidade)((int)a.Status), (TurmaStatus)((int)a.Status), a.ValorMensal, FaixaEtaria.Criar(0, 0).Sucesso))
                             .ToList();
             }
         }
@@ -42,14 +35,7 @@ namespace MiniSociety.Dominio.Repositorios
             {
                 return conexao
                             .Query<dynamic>(sql, new { id })
-                            .Select(a => new Turma
-                            {
-                                Id = a.Id,
-                                Descricao = a.Descricao,
-                                Status = (TurmaStatus)((int)a.Status),
-                                Modalidade = (TurmaModalidade)((int)a.Status),
-                                ValorMensal = a.ValorMensal
-                            })
+                            .Select(a => new Turma(a.Id, a.Descricao, (TurmaModalidade)((int)a.Status), (TurmaStatus)((int)a.Status), a.ValorMensal, FaixaEtaria.Criar(0, 0).Sucesso))
                             .FirstOrDefault();
             }
         }

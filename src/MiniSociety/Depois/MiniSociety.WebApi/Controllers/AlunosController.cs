@@ -2,8 +2,6 @@
 using MiniSociety.Dominio.Dtos;
 using MiniSociety.Dominio.Entitidades;
 using MiniSociety.Dominio.Repositorios;
-using MiniSociety.Dominio.Servicos;
-using System.Linq;
 
 namespace MiniSociety.WebApi.Controllers
 {
@@ -12,19 +10,13 @@ namespace MiniSociety.WebApi.Controllers
     {
         private readonly AlunosRepositorio _alunosRepositorio;
         private readonly TurmasRepositorio _turmasRepositorio;
-        private readonly InscricaoServico _servicoInscricao;
-        private readonly InscricaoRepositorio _inscricaoRepositorio;
 
         public AlunosController(
             AlunosRepositorio alunosRepositorio,
-            TurmasRepositorio turmasRepositorio,
-            InscricaoServico servicoInscricao,
-            InscricaoRepositorio inscricaoRepositorio)
+            TurmasRepositorio turmasRepositorio)
         {
             _alunosRepositorio = alunosRepositorio;
             _turmasRepositorio = turmasRepositorio;
-            _servicoInscricao = servicoInscricao;
-            _inscricaoRepositorio = inscricaoRepositorio;
         }
 
         [HttpGet]
@@ -76,6 +68,10 @@ namespace MiniSociety.WebApi.Controllers
                 var inscricao = aluno.RealizarInscricao(turma);
                 if (inscricao.EhFalha)
                     return BadRequest(inscricao.Falha.Mensagem);
+
+                var mensalidade = _fabricaMensalidades.GerarProximosMeses(inscricao.Sucesso, 3);
+
+
 
                 var inscricaoInserida = _alunosRepositorio.Atualizar(aluno);
                 return CreatedAtAction(nameof(ConsultarPorId), new { id }, aluno);

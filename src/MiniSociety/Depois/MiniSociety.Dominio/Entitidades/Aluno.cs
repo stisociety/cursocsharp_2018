@@ -13,6 +13,7 @@ namespace MiniSociety.Dominio.Entitidades
             Email = email;
             DataNascimento = dataNascimento;
             Situacao = new Ativo();
+            _inscricoes = new List<Inscricao>();
         }
 
         internal Aluno(int id, Nome nome, Email email, DateTime dataNascimento, Situacao situacao, IList<Inscricao> inscricoes)
@@ -22,17 +23,25 @@ namespace MiniSociety.Dominio.Entitidades
             Email = email;
             DataNascimento = dataNascimento;
             Situacao = situacao;
-            Inscricoes = inscricoes;
+            _inscricoes = inscricoes;
+        }
+
+        public void Suspender(DateTime ateQuando)
+        {
+            Situacao = new Suspenso(ateQuando);
+           
         }
 
         public int Id { get; }
         public Nome Nome { get; }
         public Email Email { get; }
         public DateTime DataNascimento { get; }
-        public Situacao Situacao { get; }
-        public IList<Inscricao> Inscricoes { get; }
+        public int Idade => DataNascimento.GetAge();
+        public Situacao Situacao { get; private set; }
+        private IList<Inscricao> _inscricoes;
+        public IEnumerable<Inscricao> Inscricoes => _inscricoes;
 
-        public Resultado<bool, Falha> RealizarInscricao(Turma turma)
+        public Resultado<Inscricao, Falha> RealizarInscricao(Turma turma)
         {
             if (Situacao is Suspenso)
                 return Falha.Nova(400, "Aluno precisa estar ativo.");
@@ -40,27 +49,33 @@ namespace MiniSociety.Dominio.Entitidades
             if (Inscricoes.Any(i => i.Turma.Id == turma.Id))
                 return Falha.Nova(400, "Aluno já inscrito para esta turma");
 
+            if (!(Idade >= turma.FaixaEtaria.IdadeMinima && Idade <= turma.FaixaEtaria.IdadeMaxima))
+                return Falha.Nova(400, "Idade fora dos limites definidos");
+
+            if(turma.Status == TurmaStatus.Fechada)
+                return Falha.Nova(400, "Turma deve estar aberta");
+
             var inscricao = new Inscricao(Guid.NewGuid().ToString(), Id, turma, DateTime.Now, turma.ValorMensal,
                 InscricaoStatus.Ativa, null);
-            Inscricoes.Add(inscricao);
+            _inscricoes.Add(inscricao);
 
-            return true;
+            return inscricao;
         }
     }
 
-    public abstract class Situacao: ValueObject<Situacao>
+    public abstract class Situacao : ValueObject<Situacao>
     {
         protected Situacao(AlunoStatus status)
         {
             Status = status;
         }
 
-        public AlunoStatus Status { get;  }    
+        public AlunoStatus Status { get; }
     }
 
-    public sealed class Ativo: Situacao
+    public sealed class Ativo : Situacao
     {
-        public Ativo(): base(AlunoStatus.Ativo)        {        }
+        public Ativo() : base(AlunoStatus.Ativo) { }
 
         protected override bool EqualsCore(Situacao other)
             => true;
@@ -72,7 +87,8 @@ namespace MiniSociety.Dominio.Entitidades
 
     public sealed class Suspenso : Situacao
     {
-        public Suspenso(DateTime ateQuando) : base(AlunoStatus.Suspenso) {
+        public Suspenso(DateTime ateQuando) : base(AlunoStatus.Suspenso)
+        {
             AteQuando = ateQuando;
         }
 
