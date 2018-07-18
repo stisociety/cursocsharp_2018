@@ -1,6 +1,7 @@
 ﻿using Dapper;
 using MiniSociety.Dominio.Crosscutting;
 using MiniSociety.Dominio.Entitidades;
+using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Linq;
@@ -23,15 +24,14 @@ namespace MiniSociety.Dominio.Repositorios
             {
                 return conexao
                             .Query<dynamic>(sql)
-                            .Select(a => new Aluno
+                            .Select(a =>
                             {
-                                Id = a.Id,
-                                Nome = Nome.Criar(a.Nome),
-                                Email = a.Email,
-                                Status = (AlunoStatus)((int)a.Status),
-                                DataNascimento = a.DataNascimento,
-                                SuspensoAte = a.SuspensoAte,
-                                Inscricoes = null
+                                Situacao situacao = null;
+                                if (((int)a.Status) == 0)
+                                    situacao = new Ativo();
+                                if (((int)a.Status) == 1)
+                                    situacao = new Suspenso(a.SuspensoAte);
+                                return new Aluno(a.Id, Nome.Criar(a.Nome), Email.Criar(a.Email), a.DataNascimento, situacao, null);
                             })
                             .ToList();
             }
@@ -73,19 +73,20 @@ namespace MiniSociety.Dominio.Repositorios
                                                         };
                                                     })
                                                     .ToList();
-                                return new Aluno
-                                {
-                                    Id = a.Id,
-                                    Nome = Nome.Criar(a.Nome),
-                                    Email = a.Email,
-                                    Status = (AlunoStatus)((int)a.Status),
-                                    DataNascimento = a.DataNascimento,
-                                    SuspensoAte = a.SuspensoAte,
-                                    Inscricoes = inscricoes
-                                };
+                                Situacao situacao = null;
+                                if (((int)a.Status) == 0)
+                                    situacao = new Ativo();
+                                if (((int)a.Status) == 1)
+                                    situacao = new Suspenso(a.SuspensoAte);
+                                return new Aluno(a.Id, Nome.Criar(a.Nome), Email.Criar(a.Email), a.DataNascimento, situacao, inscricoes);
                             })
                             .FirstOrDefault();
             }
+        }
+
+        public object Atualizar(Aluno aluno)
+        {
+            throw new NotImplementedException();
         }
 
         public Aluno RecuperarPorEmail(string email)
@@ -95,15 +96,14 @@ namespace MiniSociety.Dominio.Repositorios
             {
                 return conexao
                             .Query<dynamic>(sql, new { email })
-                            .Select(a => new Aluno
+                            .Select(a => 
                             {
-                                Id = a.Id,
-                                Nome = Nome.Criar(a.Nome),
-                                Email = a.Email,
-                                Status = (AlunoStatus)((int)a.Status),
-                                DataNascimento = a.DataNascimento,
-                                SuspensoAte = a.SuspensoAte,
-                                Inscricoes = null
+                                Situacao situacao = null;
+                                if (((int)a.Status) == 0)
+                                    situacao = new Ativo();
+                                if (((int)a.Status) == 1)
+                                    situacao = new Suspenso(a.SuspensoAte);
+                                return new Aluno(a.Id, Nome.Criar(a.Nome), Email.Criar(a.Email), a.DataNascimento, situacao, null);
                             })
                             .FirstOrDefault();
             }
@@ -114,7 +114,10 @@ namespace MiniSociety.Dominio.Repositorios
             var sql = "INSERT INTO Alunos (Nome, Email, DataNascimento, Status, SuspensoAte) VALUES (@Nome, @Email, @DataNascimento, @Status, @SuspensoAte); SELECT CAST(SCOPE_IDENTITY() as int); ";
             using (var conexao = new SqlConnection(_appSettings.GetConnectionString()))
             {
-                var resultado = conexao.Query<int>(sql, new { Nome = aluno.Nome.Valor, aluno.Email, aluno.DataNascimento, aluno.Status, aluno.SuspensoAte }).First();
+                DateTime? dataSuspensao = null;
+                if (aluno.Situacao is Suspenso suspensao)
+                    dataSuspensao = suspensao.AteQuando;
+                var resultado = conexao.Query<int>(sql, new { Nome = aluno.Nome.Valor, Email = aluno.Email.Valor, aluno.DataNascimento, aluno.Situacao.Status, dataSuspensao }).First();
                 return Recuperar(resultado);
             }
         }

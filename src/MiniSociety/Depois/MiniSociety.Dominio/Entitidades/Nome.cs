@@ -5,7 +5,7 @@ using System.Text;
 
 namespace MiniSociety.Dominio.Entitidades
 {
-    public class Nome
+    public class Nome: ValueObject<Nome>
     {
         public string Valor { get; }
 
@@ -24,15 +24,11 @@ namespace MiniSociety.Dominio.Entitidades
             return new Nome(nome);
         }
 
-        //protected override bool EqualsCore(CustomerName other)
-        //{
-        //    return Valor.Equals(other.Value, StringComparison.InvariantCultureIgnoreCase);
-        //}
+        protected override bool EqualsCore(Nome other)
+            => Valor.Equals(other.Valor);
 
-        //protected override int GetHashCodeCore()
-        //{
-        //    return Valor.GetHashCode();
-        //}
+        protected override int GetHashCodeCore()
+            => Valor.GetHashCode();
 
         //public static implicit operator string(CustomerName customerName)
         //{

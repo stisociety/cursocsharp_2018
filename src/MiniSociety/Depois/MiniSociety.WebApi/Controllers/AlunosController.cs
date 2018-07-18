@@ -46,8 +46,11 @@ namespace MiniSociety.WebApi.Controllers
                 var nome = Nome.Criar(model.Nome);
                 if (nome.EhFalha)
                     return StatusCode(nome.Falha.Codigo, nome.Falha.Mensagem);
+                var email = Email.Criar(model.Email);
+                if (email.EhFalha)
+                    return StatusCode(email.Falha.Codigo, email.Falha.Mensagem);
 
-                var aluno = new Aluno(nome.Sucesso, model.Email, model.DataNascimento);
+                var aluno = new Aluno(nome.Sucesso, email.Sucesso, model.DataNascimento);
                 var alunoInserido = _alunosRepositorio.Inserir(aluno);
 
                 return CreatedAtAction(nameof(ConsultarPorId), new { id = alunoInserido.Id }, alunoInserido);
@@ -65,16 +68,16 @@ namespace MiniSociety.WebApi.Controllers
             {
                 var turma = _turmasRepositorio.Recuperar(turmaId);
                 if (turma == null)
-                    return BadRequest("Turma inválida");
+                    return BadRequest("Turma inexistente");
                 var aluno = _alunosRepositorio.Recuperar(id);
                 if (aluno == null)
-                    return BadRequest("Aluno inválido");
-                if (aluno.Inscricoes.Any(i => i.Turma.Id == turma.Id))
-                    return BadRequest("Aluno já inscrito para esta turma");
+                    return BadRequest("Aluno inexistente");
 
-                var inscricao = _servicoInscricao.RealizarInscricao(aluno, turma);
+                var inscricao = aluno.RealizarInscricao(turma);
+                if (inscricao.EhFalha)
+                    return BadRequest(inscricao.Falha.Mensagem);
 
-                var inscricaoInserida = _inscricaoRepositorio.Inserir(inscricao);
+                var inscricaoInserida = _alunosRepositorio.Atualizar(aluno);
                 return CreatedAtAction(nameof(ConsultarPorId), new { id }, aluno);
             }
             catch (System.Exception e)

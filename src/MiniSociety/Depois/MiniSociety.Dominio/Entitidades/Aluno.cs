@@ -1,34 +1,90 @@
-﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
+﻿using STI.Compartilhado.Core;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Text;
-using System.Text.RegularExpressions;
+using System.Linq;
 
 namespace MiniSociety.Dominio.Entitidades
 {
     public class Aluno
     {
-        internal Aluno() { }
-
-        public Aluno(Nome nome, string email, DateTime dataNascimento)
+        public Aluno(Nome nome, Email email, DateTime dataNascimento)
         {
-            
-            if(!Regex.IsMatch(email, @"^(.+)@(.+)$"))
-                throw new ArgumentException("Email inválido");
             Nome = nome;
             Email = email;
             DataNascimento = dataNascimento;
-            Status = AlunoStatus.Ativo;
+            Situacao = new Ativo();
         }
 
-        public int Id { get; set; }
-        public Nome Nome { get; set; }
-        public string Email { get; set; }
-        public DateTime DataNascimento { get; set; }
-        public AlunoStatus Status { get; set; }
-        public DateTime? SuspensoAte { get; set; }
-        public IList<Inscricao> Inscricoes { get; set; }
+        internal Aluno(int id, Nome nome, Email email, DateTime dataNascimento, Situacao situacao, IList<Inscricao> inscricoes)
+        {
+            Id = id;
+            Nome = nome;
+            Email = email;
+            DataNascimento = dataNascimento;
+            Situacao = situacao;
+            Inscricoes = inscricoes;
+        }
+
+        public int Id { get; }
+        public Nome Nome { get; }
+        public Email Email { get; }
+        public DateTime DataNascimento { get; }
+        public Situacao Situacao { get; }
+        public IList<Inscricao> Inscricoes { get; }
+
+        public Resultado<bool, Falha> RealizarInscricao(Turma turma)
+        {
+            if (Situacao is Suspenso)
+                return Falha.Nova(400, "Aluno precisa estar ativo.");
+
+            if (Inscricoes.Any(i => i.Turma.Id == turma.Id))
+                return Falha.Nova(400, "Aluno já inscrito para esta turma");
+
+            var inscricao = new Inscricao(Guid.NewGuid().ToString(), Id, turma, DateTime.Now, turma.ValorMensal,
+                InscricaoStatus.Ativa, null);
+            Inscricoes.Add(inscricao);
+
+            return true;
+        }
+    }
+
+    public abstract class Situacao: ValueObject<Situacao>
+    {
+        protected Situacao(AlunoStatus status)
+        {
+            Status = status;
+        }
+
+        public AlunoStatus Status { get;  }    
+    }
+
+    public sealed class Ativo: Situacao
+    {
+        public Ativo(): base(AlunoStatus.Ativo)        {        }
+
+        protected override bool EqualsCore(Situacao other)
+            => true;
+
+        protected override int GetHashCodeCore()
+            => base.GetHashCode();
+
+    }
+
+    public sealed class Suspenso : Situacao
+    {
+        public Suspenso(DateTime ateQuando) : base(AlunoStatus.Suspenso) {
+            AteQuando = ateQuando;
+        }
+
+        public DateTime AteQuando { get; }
+
+        protected override bool EqualsCore(Situacao other)
+        {
+            if (other is Suspenso suspensao)
+                return AteQuando.Equals(suspensao.AteQuando);
+            return false;
+        }
+        protected override int GetHashCodeCore()
+            => AteQuando.GetHashCode();
     }
 }
