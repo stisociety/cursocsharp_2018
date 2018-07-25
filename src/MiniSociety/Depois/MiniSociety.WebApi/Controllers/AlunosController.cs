@@ -1,7 +1,11 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using MediatR;
+using Microsoft.AspNetCore.Mvc;
+using MiniSociety.Dominio.Aplicacao;
 using MiniSociety.Dominio.Dtos;
 using MiniSociety.Dominio.Entitidades;
+using MiniSociety.Dominio.Entitidades.EventosDominio;
 using MiniSociety.Dominio.Repositorios;
+using System.Threading.Tasks;
 
 namespace MiniSociety.WebApi.Controllers
 {
@@ -10,13 +14,19 @@ namespace MiniSociety.WebApi.Controllers
     {
         private readonly AlunosRepositorio _alunosRepositorio;
         private readonly TurmasRepositorio _turmasRepositorio;
+        private readonly IMediator _mediator;
+        private readonly RealizarInscricaoHandler _realizarInscricaoHandler;
 
         public AlunosController(
             AlunosRepositorio alunosRepositorio,
-            TurmasRepositorio turmasRepositorio)
+            TurmasRepositorio turmasRepositorio,
+            IMediator mediator,
+            RealizarInscricaoHandler realizarInscricaoHandler)
         {
             _alunosRepositorio = alunosRepositorio;
             _turmasRepositorio = turmasRepositorio;
+            _mediator = mediator;
+            _realizarInscricaoHandler = realizarInscricaoHandler;
         }
 
         [HttpGet]
@@ -54,32 +64,15 @@ namespace MiniSociety.WebApi.Controllers
         }
 
         [HttpPost("{id}/inscricoes")]
-        public IActionResult NovaInscricao(int id, [FromBody]int turmaId)
+        public async Task<IActionResult> NovaInscricao(int id, [FromBody]int turmaId)
         {
-            try
-            {
-                var turma = _turmasRepositorio.Recuperar(turmaId);
-                if (turma == null)
-                    return BadRequest("Turma inexistente");
-                var aluno = _alunosRepositorio.Recuperar(id);
-                if (aluno == null)
-                    return BadRequest("Aluno inexistente");
 
-                var inscricao = aluno.RealizarInscricao(turma);
-                if (inscricao.EhFalha)
-                    return BadRequest(inscricao.Falha.Mensagem);
+            var resultado = await _mediator.Send(new RealizarInscricaoComando(id, turmaId));
 
-                var mensalidade = _fabricaMensalidades.GerarProximosMeses(inscricao.Sucesso, 3);
+            if (resultado.EhFalha)
+                return StatusCode(resultado.Falha.Codigo, resultado.Falha.Mensagem);
+            return CreatedAtAction(nameof(ConsultarPorId), new { id }, resultado.Sucesso);
 
-
-
-                var inscricaoInserida = _alunosRepositorio.Atualizar(aluno);
-                return CreatedAtAction(nameof(ConsultarPorId), new { id }, aluno);
-            }
-            catch (System.Exception e)
-            {
-                return StatusCode(500, new { error = e.Message });
-            }
         }
     }
 }

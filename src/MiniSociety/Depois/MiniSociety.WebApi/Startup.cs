@@ -1,9 +1,13 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using MediatR;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using MiniSociety.Dominio.Aplicacao;
 using MiniSociety.Dominio.Crosscutting;
+using MiniSociety.Dominio.Entitidades;
 using MiniSociety.Dominio.Repositorios;
+using System.Reflection;
 
 namespace MiniSociety.WebApi
 {
@@ -21,6 +25,9 @@ namespace MiniSociety.WebApi
             services.AddSingleton(new AppSettingsHelper(Configuration));
             services.AddTransient<AlunosRepositorio>();
             services.AddTransient<TurmasRepositorio>();
+            services.AddTransient<RealizarInscricaoHandler>();
+
+            services.AddMediatR(typeof(Startup).GetTypeInfo().Assembly, typeof(Aluno).GetTypeInfo().Assembly);
 
             services.AddMvc();
         }
